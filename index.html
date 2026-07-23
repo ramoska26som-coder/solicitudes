@@ -196,10 +196,15 @@
         <ul class="terms">
           <li><span class="ic">✓</span><div>La información que brindes será <strong>verificada por uno de nuestros gestores</strong> mediante <strong>visita domiciliaria y visita a tu lugar de trabajo</strong>.</div></li>
           <li><span class="ic">✓</span><div>Las referencias deben ser <strong>únicamente familiares</strong>, debes asegurarte que <strong>puedan atender nuestras llamadas en el momento</strong>.</div></li>
+          <li><span class="ic">✓</span><div>Te daremos seguimiento por <strong>WhatsApp</strong> al número que registres, para avisarte cómo va tu solicitud y pedirte documentos si hacen falta.</div></li>
         </ul>
         <label class="checkline" for="acepto">
           <input type="checkbox" id="acepto">
           <span>He leído y <b>acepto</b> que mi información sea verificada con visita domiciliaria y laboral, y que mis referencias familiares puedan ser contactadas de inmediato.</span>
+        </label>
+        <label class="checkline" for="aceptoWa">
+          <input type="checkbox" id="aceptoWa">
+          <span><b>Autorizo</b> que Más Pisto me escriba por <b>WhatsApp, llamada o mensaje</b> al número que registre, para dar seguimiento a esta solicitud.</span>
         </label>
         <button class="btn btn-amarillo" id="btnStart" disabled>Continuar con mi solicitud</button>
       </section>
@@ -522,7 +527,7 @@
 
   const $ = s => document.querySelector(s);
   const $$ = s => Array.from(document.querySelectorAll(s));
-  const acepto=$('#acepto'), btnStart=$('#btnStart');
+  const acepto=$('#acepto'), aceptoWa=$('#aceptoWa'), btnStart=$('#btnStart');
   const screens={consent:$('#screenConsent'),form:$('#screenForm'),done:$('#screenDone'),track:$('#screenTrack')};
   const hero={e:$('#heroEyebrow'),t:$('#heroTitle'),x:$('#heroText')};
 
@@ -565,9 +570,11 @@
       .catch(()=>setRubros(RUBROS_FALLBACK));
   })();
 
-  acepto.addEventListener('change',()=>btnStart.disabled=!acepto.checked);
+  const revisarAceptos=()=>btnStart.disabled=!(acepto.checked&&aceptoWa.checked);
+  acepto.addEventListener('change',revisarAceptos);
+  aceptoWa.addEventListener('change',revisarAceptos);
   btnStart.addEventListener('click',()=>{
-    if(!acepto.checked)return;
+    if(!acepto.checked||!aceptoWa.checked)return;
     show('form',{e:'Solicitud de crédito',t:'Completa tu solicitud',x:'Llena tus datos con cuidado. Todos los campos con * son obligatorios.'});
   });
 
@@ -683,6 +690,8 @@
 
     /* Normalizar para el sistema de crédito */
     data.consentimiento = true;
+    data.consentimiento_whatsapp = true;
+    data.consentimiento_en = new Date().toISOString();
     data.antiguedad_anios  = parseInt(data.antiguedad_anios)  || 0;
     data.antiguedad_meses  = parseInt(data.antiguedad_meses)  || 0;
     data.vivienda_anios    = parseInt(data.vivienda_anios)    || 0;
